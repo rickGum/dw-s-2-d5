@@ -2,10 +2,10 @@ import { Router } from "express";
 import { hello, login, profile } from "../controllers/userController";
 
 
-const router = Router()
+const User = Router()
 
-router.get("/hello", hello)
-router.get("/profile/:name", profile)
-router.post("/login", login)
+User.get("/hello", hello)
+User.get("/profile/:name", profile)
+User.post("/login", login)
 
-export default router
+export default User
