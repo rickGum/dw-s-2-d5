@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { hello, login, profile } from "../controllers/userController";
+import { getAllUser, hello, login, profile, register } from "../controllers/userController";
 
 
 const User = Router()
@@ -7,5 +7,7 @@ const User = Router()
 User.get("/hello", hello)
 User.get("/profile/:name", profile)
 User.post("/login", login)
+User.post("/register", register )
+User.get("/alluser", getAllUser )
 
 export default User
