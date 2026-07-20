@@ -6,10 +6,12 @@ import {
   getProductById,
   updateProduct,
 } from "../controllers/productController";
+import { validate } from "../middlewares/validate";
+import { createProductSchema } from "../validations/productSchema";
 
 const Product = Router();
 
-Product.post("/product", createProduct);
+Product.post("/product", validate(createProductSchema), createProduct);
 Product.get("/product", getAllProduct);
 Product.get("/product/:id", getProductById);
 Product.put("/product/:id", updateProduct);

@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import prisma from "../lib/prisma";
 
 export const hello = (req: Request, res: Response) => {
@@ -60,4 +60,71 @@ export const getAllUser = async (req: Request, res: Response) => {
     message: "Berhasil tampil all data users",
     data: users,
   });
+};
+
+export const transferPoint = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { senderId, receiverId, amount } = req.body;
+
+    const sender = await prisma.user.findUnique({
+      where: {
+        id: Number(senderId),
+      },
+    });
+
+    const receiver = await prisma.user.findUnique({
+      where: {
+        id: Number(receiverId),
+      },
+    });
+
+    if (!sender) {
+      throw new Error("Sender tidak ditemukan");
+    }
+
+    if (!receiver) {
+      throw new Error("Receiver tidak ditemukan");
+    }
+
+    if (senderId === receiverId) {
+      throw new Error("Tidak boleh transfer ke diri sendiri");
+    }
+
+    if (sender.points < amount) {
+      throw new Error("Point tidak cukup");
+    }
+
+    await prisma.$transaction([
+      prisma.user.update({
+        where: {
+          id: Number(senderId),
+        },
+        data: {
+          points: {
+            decrement: Number(amount),
+          },
+        },
+      }),
+      prisma.user.update({
+        where: {
+          id: Number(receiverId),
+        },
+        data: {
+          points: {
+            increment: Number(amount),
+          },
+        },
+      }),
+    ]);
+
+    return res.status(200).json({
+      message: "Transfer berhasil",
+    });
+  } catch (error) {
+    next(error);
+  }
 };

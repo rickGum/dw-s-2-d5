@@ -1,7 +1,7 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import prisma from "../lib/prisma";
 
-export const createProduct = async (req: Request, res: Response) => {
+export const createProduct = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { name, price, stock, category } = req.body;
     const newProduct = await prisma.product.create({
@@ -23,18 +23,15 @@ export const createProduct = async (req: Request, res: Response) => {
       data: newProduct,
     });
   } catch (error) {
-    console.log(error);
-    res.status(500).json({
-      message: "server down",
-    });
+     next(error);
   }
 };
 
-export const getAllProduct = async (req: Request, res: Response) => {
+export const getAllProduct = async (req: Request, res: Response, next:NextFunction) => {
   try {
     const { search, minPrice } = req.query;
     const sortBy = (req.query.sortBy as string) || "createdAt";
-    const order = req.query.order === "asc" ? "asc" : "dsc";
+    const order = req.query.order === "asc" ? "asc" : "desc";
 
     const page = Number(req.query.page) || 1;
     const limit = Number(req.query.limit) || 10;
@@ -79,14 +76,15 @@ export const getAllProduct = async (req: Request, res: Response) => {
       data: products,
     });
   } catch (error) {
-    console.log(error);
-    res.status(500).json({
-      message: "server down",
-    });
+     next(error);
   }
 };
 
-export const getProductById = async (req: Request, res: Response) => {
+export const getProductById = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     const { id } = req.params;
     const product = await prisma.product.findUnique({
@@ -105,14 +103,11 @@ export const getProductById = async (req: Request, res: Response) => {
       data: product,
     });
   } catch (error) {
-    console.log(error);
-    res.status(500).json({
-      message: "server down",
-    });
+    next(error);
   }
 };
 
-export const updateProduct = async (req: Request, res: Response) => {
+export const updateProduct = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params;
     const { name, price, stock, category } = req.body;
@@ -133,14 +128,11 @@ export const updateProduct = async (req: Request, res: Response) => {
       data: updatedProduct,
     });
   } catch (error) {
-    console.log(error);
-    res.status(500).json({
-      message: "server down",
-    });
+    next(error);
   }
 };
 
-export const deleteProduct = async (req: Request, res: Response) => {
+export const deleteProduct = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params;
     await prisma.product.delete({
@@ -152,9 +144,6 @@ export const deleteProduct = async (req: Request, res: Response) => {
       message: "Product deleted Success",
     });
   } catch (error) {
-    console.log(error);
-    res.status(500).json({
-      message: "server down",
-    });
+      next(error);
   }
 };
