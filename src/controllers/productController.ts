@@ -1,21 +1,23 @@
 import { NextFunction, Request, Response } from "express";
 import prisma from "../lib/prisma";
 
-export const createProduct = async (req: Request, res: Response, next: NextFunction) => {
+export const createProduct = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     const { name, price, stock, category } = req.body;
+    const userId = (req as any).user.id;
+    const image = req.file ? req.file.filename : null;
     const newProduct = await prisma.product.create({
       data: {
         name,
         price: Number(price),
         stock: Number(stock),
-        category,
-        // ini rev dulu ntar ganti jwt
-        author: {
-          connect: {
-            id: 1,
-          },
-        },
+        category: category,
+        userId: Number(userId),
+        image,
       },
     });
     return res.status(201).json({
@@ -23,11 +25,15 @@ export const createProduct = async (req: Request, res: Response, next: NextFunct
       data: newProduct,
     });
   } catch (error) {
-     next(error);
+    next(error);
   }
 };
 
-export const getAllProduct = async (req: Request, res: Response, next:NextFunction) => {
+export const getAllProduct = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     const { search, minPrice } = req.query;
     const sortBy = (req.query.sortBy as string) || "createdAt";
@@ -76,7 +82,7 @@ export const getAllProduct = async (req: Request, res: Response, next:NextFuncti
       data: products,
     });
   } catch (error) {
-     next(error);
+    next(error);
   }
 };
 
@@ -107,7 +113,11 @@ export const getProductById = async (
   }
 };
 
-export const updateProduct = async (req: Request, res: Response, next: NextFunction) => {
+export const updateProduct = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     const { id } = req.params;
     const { name, price, stock, category } = req.body;
@@ -132,7 +142,11 @@ export const updateProduct = async (req: Request, res: Response, next: NextFunct
   }
 };
 
-export const deleteProduct = async (req: Request, res: Response, next: NextFunction) => {
+export const deleteProduct = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     const { id } = req.params;
     await prisma.product.delete({
@@ -144,6 +158,6 @@ export const deleteProduct = async (req: Request, res: Response, next: NextFunct
       message: "Product deleted Success",
     });
   } catch (error) {
-      next(error);
+    next(error);
   }
 };

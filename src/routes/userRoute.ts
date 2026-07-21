@@ -1,16 +1,19 @@
 import { Router } from "express";
-import { getAllUser, hello, login, profile, register, transferPoint } from "../controllers/userController";
+import {
+  getAllUser,
+  hello,
+  profile,
+  transferPoint,
+} from "../controllers/userController";
 import { validate } from "../middlewares/validate";
 import { transferSchema } from "../validations/transferSchema";
+import { authentication } from "../middlewares/authMiddleware";
 
+const User = Router();
 
-const User = Router()
+User.get("/hello", hello);
+User.get("/alluser", getAllUser);
+User.post("/transfer", validate(transferSchema), transferPoint);
+User.get("/profile", authentication, profile);
 
-User.get("/hello", hello)
-User.get("/profile/:name", profile)
-User.post("/login", login)
-User.post("/register", register )
-User.get("/alluser", getAllUser )
-User.post("/transfer",validate(transferSchema), transferPoint )
-
-export default User
+export default User;

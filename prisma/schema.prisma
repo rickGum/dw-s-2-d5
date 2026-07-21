@@ -17,6 +17,7 @@ model Product {
   price     Int
   stock     Int
   category  String?
+  image String?
   createdAt DateTime @default(now())
   userId    Int
   author    User     @relation(fields: [userId], references: [id])
@@ -27,6 +28,8 @@ model User {
   name      String
   email     String    @unique
   password  String
+  role String @default("USER")
+  profilePicture String?
   products  Product[]
   points Int @default(0)
   createdAt DateTime  @default(now())

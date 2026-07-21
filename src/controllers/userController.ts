@@ -7,49 +7,6 @@ export const hello = (req: Request, res: Response) => {
   });
 };
 
-export const profile = (req: Request, res: Response) => {
-  const { name } = req.params;
-  return res.json({
-    message: `hello ${name}`,
-  });
-};
-
-export const login = (req: Request, res: Response) => {
-  const { email, password } = req.body;
-  if (email === "admin@mail.com" && password === "123456") {
-    return res.status(200).json({
-      success: true,
-      message: "Login Admin berhasil!",
-    });
-  } else {
-    return res.status(401).json({
-      success: false,
-      message: "email dan password tidak sesuai!",
-    });
-  }
-};
-
-export const register = async (req: Request, res: Response) => {
-  const { name, email, password } = req.body;
-  const newUser = await prisma.user.create({
-    data: {
-      name,
-      email,
-      password,
-    },
-    select: {
-      id: true,
-      name: true,
-      email: true,
-      createdAt: true,
-    },
-  });
-  return res.status(200).json({
-    message: "Register berhasil tanpa jwt",
-    data: newUser,
-  });
-};
-
 export const getAllUser = async (req: Request, res: Response) => {
   const users = await prisma.user.findMany({
     include: {
@@ -123,6 +80,42 @@ export const transferPoint = async (
 
     return res.status(200).json({
       message: "Transfer berhasil",
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const profile = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const id = (req as any).user.id;
+
+    const user = await prisma.user.findUnique({
+      where: {
+        id: Number(id),
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        profilePicture: true,
+      },
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        message: "User tidak ditemukan",
+      });
+    }
+
+    return res.status(200).json({
+      message: "Profile berhasil diambil",
+      data: user,
     });
   } catch (error) {
     next(error);
